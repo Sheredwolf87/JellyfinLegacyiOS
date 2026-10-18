@@ -1,0 +1,29 @@
+name: JellyfinIOS6
+options:
+  bundleIdPrefix: com.jellyfin
+  deploymentTarget:
+    iOS: "6.0"
+targets:
+  JellyfinIOS6:
+    type: application
+    platform: iOS
+    deploymentTarget: "6.0"
+    sources:
+      - path: JellyfinIOS6
+    info:
+      path: JellyfinIOS6/Jellyfin-Info.plist
+      properties:
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        UIMainStoryboardFile: ""
+    settings:
+      base:
+        PRODUCT_NAME: JellyfinIOS6
+        INFOPLIST_FILE: JellyfinIOS6/Jellyfin-Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: "6.0"
+        ARCHS: "$(ARCHS_STANDARD_32_BIT)"
+        VALID_ARCHS: "armv7 armv7s"
+        ONLY_ACTIVE_ARCH: NO
+        CLANG_ENABLE_OBJC_ARC: YES
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGNING_REQUIRED: NO
+        CODE_SIGN_IDENTITY: ""
