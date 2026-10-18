@@ -1,0 +1,43 @@
+name: Build iOS 6 Jellyfin Client
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build Archive & Export IPA
+        run: |
+          xcodebuild archive \
+            -project JellyfinIOS6.xcodeproj \
+            -scheme JellyfinIOS6 \
+            -configuration Release \
+            -archivePath build/JellyfinIOS6.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+          # Package into .ipa
+          mkdir -p Payload
+          cp -r build/JellyfinIOS6.xcarchive/Products/Applications/*.app Payload/
+          zip -r JellyfinIOS6.ipa Payload/
+          rm -rf Payload build
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JellyfinIOS6-IPA
+          path: JellyfinIOS6.ipa
