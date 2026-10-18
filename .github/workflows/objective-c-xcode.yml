@@ -1,0 +1,52 @@
+name: Build iOS 6 Jellyfin Client
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        run: |
+          sudo xcode-select -switch /Applications/Xcode.app
+          xcodebuild -version
+
+      - name: Build Archive & Export IPA
+        run: |
+          cd JellyfinIOS6
+          
+          # Find the .xcodeproj file dynamically inside the folder
+          PROJECT_FILE=$(ls -d *.xcodeproj | head -n 1)
+          PROJECT_NAME=$(basename "$PROJECT_FILE" .xcodeproj)
+          
+          echo "Found project: $PROJECT_NAME"
+
+          # Build the archive for iOS device (ARMv7/ARMv7s target)
+          xcodebuild archive \
+            -project "$PROJECT_FILE" \
+            -scheme "$PROJECT_NAME" \
+            -configuration Release \
+            -archivePath build/"$PROJECT_NAME".xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+          # Package the built .app into a Payload folder and zip it into an .ipa (Bypassing codesign for jailbroken AppSync Unified)
+          mkdir -p Payload
+          cp -r build/"$PROJECT_NAME".xcarchive/Products/Applications/*.app Payload/
+          zip -r ../JellyfinIOS6.ipa Payload/
+          cd ..
+          rm -rf JellyfinIOS6/Payload JellyfinIOS6/build
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: JellyfinIOS6-IPA
+          path: JellyfinIOS6.ipa
