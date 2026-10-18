@@ -10,12 +10,6 @@ targets:
     deploymentTarget: "6.0"
     sources:
       - path: .
-        excludes:
-          - .github
-          - project.yml
-          - JellyfinIOS6.xcodeproj
-          - build
-          - Payload
     info:
       path: Jellyfin-Info.plist
       properties:
